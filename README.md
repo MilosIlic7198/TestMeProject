@@ -27,10 +27,10 @@ Submitted test questions are automatically checked for correctness or incorrectn
 
 This is my full database design: 
 
-![alt text](https://https://github.com/MilosIlic7198/TestMeProject/blob/main/DBDesign.PNG)
+![DB Design](DBDesign.PNG)
 
-![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![ER Diagram](ERDiagram.PNG)
 
-![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![Database](Database.PNG)
 
 NOTE: This project is not finisht yet!!! I will be adding: Java Socket Programing, and Concurrent Programing.
