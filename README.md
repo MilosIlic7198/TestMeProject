@@ -27,7 +27,7 @@ Submitted test questions are automatically checked for correctness or incorrectn
 
 This is my full database design: 
 
-![alt text](https://https://github.com/MilosIlic7198/TestMeProject/blob/main/DBDesign.PNG?raw=true)
+![alt text](https://https://github.com/MilosIlic7198/TestMeProject/blob/main/DBDesign.PNG)
 
 ![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
 
