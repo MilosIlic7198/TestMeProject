@@ -1,0 +1,79 @@
+-- Admin sign in check.
+SELECT a.* FROM account a WHERE a.username_email = ? AND a.password = ?;
+SELECT a.admin_id, a.first_name, a.last_name, a.god_id FROM admin a WHERE a.admin_id = ?;
+
+-- Instructor sign in check.
+SELECT a.* FROM account a WHERE a.username_email = ? AND a.password = ?;
+SELECT i.instructor_id, i.first_name, i.last_name, i.initials, i.admin_id FROM instructor i WHERE i.instructor_id = ?;
+
+-- Student sign in check.
+SELECT a.* FROM account a WHERE a.username_email = ? AND a.password = ?;
+SELECT s.student_id, s.first_name, s.last_name, s.instructor_id FROM student s WHERE s.student_id = ?;
+
+
+-- Display student test from his instructor.
+SELECT t.* FROM test t WHERE t.instructor_id = ? AND t.test_id NOT IN (SELECT tb.test_id FROM taken_by tb WHERE tb.student_id = ?);
+
+
+-- Display instructors tests.
+SELECT t.* FROM test t WHERE t.instructor_id = ?;
+
+
+-- Display test.
+SELECT t.* FROM test t WHERE t.test_id = ?;
+
+
+-- Display test questions.
+SELECT tq.* FROM test_questions tq WHERE tq.test_id = ?;
+
+
+-- Display test tasks.
+SELECT tt.* FROM test_tasks tt WHERE tt.test_id = ?;
+
+
+-- Display submitted test.
+SELECT st.* FROM submitted_test st WHERE test_id = ?;
+
+
+-- Display submitted questions.
+SELECT sq.* FROM submitted_questions sq WHERE sq.test_id = ?;
+
+
+-- Display submitted tasks.
+SELECT st.* FROM submitted_tasks st WHERE st.test_id = ?;
+
+
+-- Mark which test was taken by which student.
+INSERT INTO taken_by VALUES(?,?,CURDATE());
+
+
+-- Student submits the test.
+INSERT INTO submitted_test (test_id, instructor_id, student_id) VALUES(?, ?, ?);
+INSERT INTO submitted_questions (test_id, question, answer, correct_answer) VALUES(?, ?, ?, ?);
+INSERT INTO submitted_questions (test_id, question, answer, correct_answer) VALUES(?, ?, ?, ?);
+INSERT INTO submitted_tasks (test_id, task_description, code) VALUES(?, ?, ?);
+
+
+-- Display student submitted test for instructor.
+SELECT st.*, CONCAT(s.first_name, " ", s.last_name) AS student_name, t.description FROM submitted_test st JOIN student s ON st.student_id = s.student_id JOIN test t ON st.test_id = t.test_id WHERE st.instructor_id = ?;
+
+
+-- Display student submitted tests.
+SELECT st.*, CONCAT(s.first_name, " ", s.last_name) AS student_name, t.description FROM submitted_test st JOIN student s ON st.student_id = s.student_id JOIN test t ON st.test_id = t.test_id WHERE st.student_id  = ?;
+
+
+-- Instructor grade submited test.
+UPDATE submitted_test SET score = ? WHERE test_id = ? AND student_id = ?;
+
+
+-- Display all instructors test taken by student.
+SELECT tb.*, t.name AS test_name, CONCAT(s.first_name, " ", s.last_name) AS student_name FROM taken_by tb JOIN test t ON tb.test_id = t.test_id JOIN student s ON tb.student_id = s.student_id WHERE tb.test_id IN (SELECT t2.test_id FROM test t2 WHERE t2.instructor_id = ?);
+
+
+-- Display all instructors students.
+SELECT s.student_id, s.first_name, s.last_name, s.city, s.street, s.postal_code, s.birthdate, s.gender FROM student s WHERE s.instructor_id = ?;
+
+
+-- Admin registration of instructor.
+INSERT INTO account(username_email, password, account_type) VALUES(?, ?, ?);
+INSERT INTO instructor (instructor_id, first_name, last_name, initials, birthdate, gender, phone_number, admin_id) VALUES(LAST_INSERT_ID(), ?, ?, ?, ?, ?, ?, ?);
