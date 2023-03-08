@@ -4,10 +4,9 @@
  */
 package dao.jdbc;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -15,36 +14,24 @@ import javax.swing.JOptionPane;
  */
 public class DatabaseConnection {
 
-    private static DatabaseConnection instance;
+    private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String URL = "jdbc:mysql://localhost:3306/mydatabase";
+    private static final String USERNAME = "root";
+    private static final String PASSWORD = "password";
+    private static final BasicDataSource DATA_SOURCE;
 
-    private Connection connection;
-    private String url = "jdbc:mysql://localhost:3306/mydatabase";
-    private String user = "root";
-    private String password = "password";
+    static {
+        DATA_SOURCE = new BasicDataSource();
+        DATA_SOURCE.setDriverClassName(DRIVER);
+        DATA_SOURCE.setUrl(URL);
+        DATA_SOURCE.setUsername(USERNAME);
+        DATA_SOURCE.setPassword(PASSWORD);
+    }
 
     private DatabaseConnection() {
-        try {
-            connection = DriverManager.getConnection(url, user, password);
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Something went wrong! " + ex.getLocalizedMessage(),
-                    "Connection!",
-                    JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
-        }
     }
 
-    public Connection getConnection() {
-        return connection;
-    }
-
-    public static DatabaseConnection getInstance() throws SQLException {
-        if (instance == null) {
-            instance = new DatabaseConnection();
-        } else if (instance.getConnection().isClosed()) {
-            instance = new DatabaseConnection();
-        }
-        return instance;
+    public static Connection getConnection() throws SQLException {
+        return DATA_SOURCE.getConnection();
     }
 }

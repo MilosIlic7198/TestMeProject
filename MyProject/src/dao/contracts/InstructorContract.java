@@ -4,11 +4,10 @@
  */
 package dao.contracts;
 
-import dao.dto.Student;
+import dao.dto.Account;
 import dao.dto.Test;
 import dao.dto.SubmittedTest;
 import dao.dto.TakenBy;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -17,17 +16,17 @@ import java.util.ArrayList;
  */
 public interface InstructorContract {
 
-    void addTest(Test t) throws SQLException;
+    boolean addTest(Test test);
 
-    ArrayList<Test> getAllTests(int instructorId) throws SQLException;
+    ArrayList<Test> getInstructorTests(int instructorId);
 
-    ArrayList<SubmittedTest> getAllSubmittedTests(int instructorId) throws SQLException;
+    ArrayList<SubmittedTest> getAllSubmittedTests(int instructorId);
 
-    SubmittedTest getSubmittedTest(int testId) throws SQLException;
+    SubmittedTest getSubmittedTest(int testId);
 
-    int gradeSubmittedTest(int score, int testId, int studentId) throws SQLException;
+    boolean gradeSubmittedTest(int score, int testId, int studentId);
 
-    ArrayList<TakenBy> getAllTakenByTest(int instructorId) throws SQLException;
+    ArrayList<TakenBy> getAllTakenByTest(int instructorId);
 
-    ArrayList<Student> getAllStudents(int instructorId) throws SQLException;
+    ArrayList<Account> getInstructorStudents(int instructorId);
 }

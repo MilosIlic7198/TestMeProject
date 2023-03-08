@@ -4,10 +4,8 @@
  */
 package dao.contracts;
 
-import dao.dto.Admin;
-import dao.dto.Instructor;
-import dao.dto.Student;
-import java.sql.SQLException;
+import dao.dto.Account;
+import java.util.ArrayList;
 
 /**
  *
@@ -15,9 +13,31 @@ import java.sql.SQLException;
  */
 public interface AdminContract {
 
-    void addAdmin(Admin a) throws SQLException;
+    boolean checkUsername(String username);
 
-    void addInstructor(Instructor i) throws SQLException;
+    boolean checkForInstructorID(int instructorId);
 
-    void addStudent(Student s) throws SQLException;
+    boolean checkForAdminID(int adminId);
+
+    boolean addAccount(Account account);
+
+    boolean editAccount(Account account);
+
+    boolean godAdminEditAdmin(int adminId, int newAdminId);
+
+    boolean deleteAdmin(int adminId, int IdOfAdminToDelete, String choice);
+
+    boolean deleteInstructor(int instructorId);
+
+    boolean deleteStudent(int studentId);
+
+    ArrayList<Account> getAdminInstructors(int adminId);
+
+    ArrayList<Account> getAllAdmins();
+
+    ArrayList<Account> getAdminAccounts(int adminId);
+
+    ArrayList<Account> getInstructorAccounts(int adminId);
+
+    ArrayList<Account> getStudentAccounts(int adminId);
 }

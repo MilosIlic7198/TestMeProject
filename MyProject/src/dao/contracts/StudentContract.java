@@ -6,7 +6,6 @@ package dao.contracts;
 
 import dao.dto.Test;
 import dao.dto.SubmittedTest;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -15,13 +14,15 @@ import java.util.ArrayList;
  */
 public interface StudentContract {
 
-    ArrayList<Test> getAllTests(int instructorId, int studentId) throws SQLException;
+    ArrayList<Test> getStudentTests(int instructorId, int studentId);
 
-    Test getTest(int testId) throws SQLException;
+    Test getTest(int testId);
 
-    int addTakenBy(int testId, int studentId) throws SQLException;
+    boolean addTakenBy(int testId, int studentId);
 
-    int submitTest(SubmittedTest t) throws SQLException;
+    boolean submitTest(SubmittedTest t);
 
-    ArrayList<SubmittedTest> getAllSubmittedTests(int studentId) throws SQLException;
+    ArrayList<SubmittedTest> getAllSubmittedTests(int studentId);
+
+    Double getAverageScore(int studentId);
 }

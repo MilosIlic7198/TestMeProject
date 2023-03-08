@@ -4,19 +4,10 @@
  */
 package facade;
 
-import com.toedter.calendar.JDateChooser;
-import dao.contracts.AdminContract;
-import dao.AdminAccess;
-import dao.dto.Admin;
-import dao.dto.Instructor;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.swing.JTextField;
-import javax.swing.ButtonGroup;
-import javax.swing.JRadioButton;
+import java.util.Date;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -24,97 +15,193 @@ import javax.swing.JOptionPane;
  */
 public class AdminFacade {
 
-    private Admin admin;
-    private AdminContract adminDAO;
-    private Instructor instructor;
-    private Pattern emailPattern;
-    private Matcher matcher;
-    private String emailRegex;
+    private AdminRegisterFacade register;
+    private AdminModelFacade model;
+    private AdminControlFacade control;
 
-    public AdminFacade(Admin admin) {
-        this.admin = admin;
-        adminDAO = new AdminAccess();
+    public AdminFacade() {
+        this.register = new AdminRegisterFacade();
+        this.model = new AdminModelFacade();
+        this.control = new AdminControlFacade();
     }
 
-    public void addInstructorCheck(
-            JTextField instructor_First_Name_Field_,
-            JTextField instructor_Last_Name_Field_,
-            JTextField instructor_Initials_Field_,
-            JTextField instructor_Phone_Number_Field_,
-            ButtonGroup instructor_Gender_ButtonGroup_,
-            JRadioButton instructor_Gender_Male_,
-            JRadioButton instructor_Gender_Female_,
-            JDateChooser instructor_Birthdate_DateChooser_,
-            JTextField instructor_Email_Field_,
-            JTextField instructor_Password_Field_) {
-        //TODO: Add validation!
-        if (instructor_First_Name_Field_.getText().trim().isEmpty()
-                || instructor_Last_Name_Field_.getText().trim().isEmpty()
-                || instructor_Initials_Field_.getText().trim().isEmpty()
-                || instructor_Phone_Number_Field_.getText().trim().isEmpty()
-                || (instructor_Gender_Male_.isSelected() == false && instructor_Gender_Female_.isSelected() == false)
-                || instructor_Birthdate_DateChooser_.getDate() == null
-                || instructor_Email_Field_.getText().trim().isEmpty()
-                || instructor_Password_Field_.getText().trim().isEmpty()) {
+    public boolean adminCheck(String username, String password, String firstName, String lastName, String email, String phoneNumber) {
+        if (firstName.trim().isEmpty()
+                || lastName.trim().isEmpty()
+                || phoneNumber.trim().isEmpty()
+                || email.trim().isEmpty()
+                || username.trim().isEmpty()
+                || password.trim().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Please make sure all fields are filled in correctly!", "Info!", JOptionPane.INFORMATION_MESSAGE);
-            return;
+            return false;
         }
-        if (instructor_Initials_Field_.getText().length() > 3
-                || instructor_Initials_Field_.getText().equals(instructor_Initials_Field_.getText().toLowerCase())) {
-            JOptionPane.showMessageDialog(null, "Initials must be in uppercase and max 3 characters long!", "Info!", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        if (!emailValidation(instructor_Email_Field_.getText())) {
-            JOptionPane.showMessageDialog(null, "Invalid email!", "Info!", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        String gender = "";
-        if (instructor_Gender_Male_.isSelected()) {
-            gender = "M";
-        } else if (instructor_Gender_Female_.isSelected()) {
-            gender = "F";
-        }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String date = sdf.format(instructor_Birthdate_DateChooser_.getDate());
-        instructor = new Instructor(
-                instructor_Email_Field_.getText(),
-                instructor_Password_Field_.getText(),
-                instructor_First_Name_Field_.getText(),
-                instructor_Last_Name_Field_.getText(),
-                instructor_Initials_Field_.getText(),
-                date,
-                gender.charAt(0),
-                instructor_Phone_Number_Field_.getText(),
-                1
-        );//TODO: Change it to admin.getAdminId() later!
-
-        addInstructor(instructor);
-
-        JOptionPane.showMessageDialog(null, "New instructor was added!", "Info!", JOptionPane.INFORMATION_MESSAGE);
-
-        instructor_Email_Field_.setText(null);
-        instructor_Password_Field_.setText(null);
-        instructor_First_Name_Field_.setText(null);
-        instructor_Last_Name_Field_.setText(null);
-        instructor_Initials_Field_.setText(null);
-        instructor_Phone_Number_Field_.setText(null);
-        instructor_Gender_ButtonGroup_.clearSelection();
-        instructor_Birthdate_DateChooser_.setCalendar(null);
-        instructor = null;
+        return register.addAdminCheck(username, password, firstName, lastName, email, phoneNumber);
     }
 
-    private boolean emailValidation(String s) {
-        emailRegex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$";
-        emailPattern = Pattern.compile(emailRegex, Pattern.CASE_INSENSITIVE);
-        matcher = emailPattern.matcher(s);
-        return matcher.find();
+    public boolean instructorCheck(String email, String password,
+            String firstName,
+            String lastName,
+            String initials,
+            String phoneNumber,
+            boolean male,
+            boolean female,
+            Date birthdate) {
+        if (firstName.trim().isEmpty()
+                || lastName.trim().isEmpty()
+                || initials.trim().isEmpty()
+                || phoneNumber.trim().isEmpty()
+                || (male == false && female == false)
+                || birthdate == null
+                || email.trim().isEmpty()
+                || password.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Please make sure all fields are filled in correctly!", "Info!", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+        return register.addInstructorCheck(email, password, firstName, lastName, initials, phoneNumber, male, female, birthdate);
     }
 
-    private void addInstructor(Instructor instructor) {
-        try {
-            adminDAO.addInstructor(instructor);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
+    public boolean studentCheck(String email, String password,
+            String firstName,
+            String lastName,
+            String city,
+            String street,
+            String postalCode,
+            boolean male,
+            boolean female,
+            Date birthdate,
+            int index) {
+        if (firstName.trim().isEmpty()
+                || lastName.trim().isEmpty()
+                || city.trim().isEmpty()
+                || street.trim().isEmpty()
+                || postalCode.trim().isEmpty()
+                || (male == false && female == false)
+                || birthdate == null
+                || email.trim().isEmpty()
+                || password.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Please make sure all fields are filled in correctly!", "Info!", JOptionPane.INFORMATION_MESSAGE);
+            return false;
         }
+        int id = model.getIdFromComboboxList(index);
+        return register.addStudentCheck(email, password, firstName, lastName, city, street, postalCode, male, female, birthdate, id);
+    }
+
+    public boolean editAdminCheck(int id, String username, String password, String firstName, String lastName, String email, String phoneNumber) {
+        if (username.trim().isEmpty()
+                || password.trim().isEmpty()
+                || firstName.trim().isEmpty()
+                || lastName.trim().isEmpty()
+                || email.trim().isEmpty()
+                || phoneNumber.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Please make sure all fields are filled in correctly!", "Info!", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+        return control.editAdminAccount(id, username, password, firstName, lastName, email, phoneNumber);
+    }
+
+    public boolean deleteAdminCheck(int id) {
+        int choice;
+        choice = JOptionPane.showConfirmDialog(null, """
+                                                     Are you sure you want to delete this admin account?
+                                                     You will be presented with a option of FORCE and SOFT delete if you want to continue.
+                                                     With FORCE delete you will delete all instructors and students that this admin created!
+                                                     It will also delete created test and submitted tests from instuctors and students!
+                                                     With SOFT delete you will inherit all instructor and student that this admin created!
+                                                     In both cases, created admins will go to god admin to be managed!
+                                                     Do you want to continue?""", "Check!", JOptionPane.YES_NO_OPTION);
+        if (choice == 1 || choice == -1) {
+            return false;
+        }
+        return control.deleteAdminAccount(id);
+    }
+
+    public boolean editInstructorCheck(int id, String email, String password, String firstName, String lastName, String initials, String phoneNumber) {
+        if (email.trim().isEmpty()
+                || password.trim().isEmpty()
+                || firstName.trim().isEmpty()
+                || lastName.trim().isEmpty()
+                || initials.trim().isEmpty()
+                || phoneNumber.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Please make sure all fields are filled in correctly!", "Info!", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+        return control.editInstructorAccount(id, email, password, firstName, lastName, initials, phoneNumber);
+    }
+
+    public boolean deleteInstructorCheck(int id) {
+        int choice;
+        choice = JOptionPane.showConfirmDialog(null, """
+                                                     Are you sure you want to delete this instructor account?
+                                                     If this instructor has created tests and assigned students it will delete them too!
+                                                     If you don't want to do that go and change all student instructor id to some other instructor!
+                                                     Do you want to continue?""", "Check!", JOptionPane.YES_NO_OPTION);
+        if (choice == 1 || choice == -1) {
+            return false;
+        }
+        return control.deleteInstructorAccount(id);
+    }
+
+    public boolean editStudentCheck(int id, String email, String password, String firstName, String lastName, String city, String street, String postalCode, String instructorId) {
+        if (email.trim().isEmpty()
+                || password.trim().isEmpty()
+                || firstName.trim().isEmpty()
+                || lastName.trim().isEmpty()
+                || city.trim().isEmpty()
+                || street.trim().isEmpty()
+                || postalCode.trim().isEmpty()
+                || instructorId.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Please make sure all fields are filled in correctly!", "Info!", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+        return control.editStudentAccount(id, email, password, firstName, lastName, city, street, postalCode, instructorId);
+    }
+
+    public boolean deleteStudentCheck(int id) {
+        int choice;
+        choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this student account?", "Check!", JOptionPane.YES_NO_OPTION);
+        if (choice == 1 || choice == -1) {
+            return false;
+        }
+        return control.deleteStudentAccount(id);
+    }
+
+    public boolean godAdminEditCheck(int adminId, String newId) {
+        return control.godAdminEdit(adminId, newId);
+    }
+
+    public boolean godAdminDeleteCheck(int adminId) {
+        int choice;
+        choice = JOptionPane.showConfirmDialog(null, """
+                                                     Are you sure you want to delete this admin account?
+                                                     You will be presented with a option of FORCE and SOFT delete if you want to continue.
+                                                     With FORCE delete you will delete all instructors and students that this admin created!
+                                                     It will also delete created test and submitted tests from instuctors and students!
+                                                     With SOFT delete you will inherit all instructor and student that this admin created!
+                                                     In both cases, created admins will go to god admin to be managed!
+                                                     Do you want to continue?""", "Check!", JOptionPane.YES_NO_OPTION);
+        if (choice == 1 || choice == -1) {
+            return false;
+        }
+        return control.godAdminDelete(adminId);
+    }
+
+    public DefaultComboBoxModel setStudentComboboxModel() {
+        return model.getStudentComboboxModel();
+    }
+
+    public DefaultTableModel setAllAdminTableModel() {
+        return model.getAllAdminTableModel();
+    }
+
+    public DefaultTableModel setAdminTableModel() {
+        return model.getAdminTableModel();
+    }
+
+    public DefaultTableModel setInstructorTableModel() {
+        return model.getInstructorTableModel();
+    }
+
+    public DefaultTableModel setStudentTableModel() {
+        return model.getStudentTableModel();
     }
 }

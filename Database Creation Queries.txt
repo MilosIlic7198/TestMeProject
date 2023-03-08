@@ -1,9 +1,7 @@
-
-
 CREATE TABLE account (
 account_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-username_email VARCHAR(50) NOT NULL,
-password VARCHAR(20) NOT NULL,
+username_email VARCHAR(50) NOT NULL UNIQUE,
+password VARCHAR(30) NOT NULL,
 account_type ENUM('A','I','S') NOT NULL,
 CHECK (account_type IN ('A','I','S')),
 UNIQUE (account_type, account_id, username_email)
@@ -16,8 +14,8 @@ last_name VARCHAR(20) NOT NULL,
 email VARCHAR(50) NOT NULL,
 phone_number VARCHAR(11) NOT NULL,
 god_id INT NULL,
-FOREIGN KEY(admin_id) REFERENCES account(account_id),
-FOREIGN KEY(god_id) REFERENCES admin(admin_id)
+FOREIGN KEY(admin_id) REFERENCES account(account_id) ON DELETE CASCADE,
+FOREIGN KEY(god_id) REFERENCES admin(admin_id) ON DELETE SET NULL
 );
 
 
@@ -30,7 +28,7 @@ birthdate DATE NOT NULL,
 gender ENUM('m','f') NOT NULL,
 phone_number VARCHAR(11) NOT NULL,
 admin_id INT NOT NULL,
-FOREIGN KEY(instructor_id) REFERENCES account(account_id),
+FOREIGN KEY(instructor_id) REFERENCES account(account_id) ON DELETE CASCADE,
 FOREIGN KEY(admin_id) REFERENCES admin(admin_id)
 );
 
@@ -39,14 +37,14 @@ CREATE TABLE student (
 student_id INT PRIMARY KEY NOT NULL,
 first_name VARCHAR(20) NOT NULL,
 last_name VARCHAR(20) NOT NULL,
-city VARCHAR(10) NOT NULL,
+city VARCHAR(15) NOT NULL,
 street VARCHAR(30) NOT NULL,
 postal_code INT NOT NULL,
 birthdate DATE NOT NULL,
 gender ENUM('m','f') NOT NULL,
 instructor_id INT NOT NULL,
 admin_id INT NOT NULL,
-FOREIGN KEY(student_id) REFERENCES account(account_id),
+FOREIGN KEY(student_id) REFERENCES account(account_id) ON DELETE CASCADE,
 FOREIGN KEY(instructor_id) REFERENCES instructor(instructor_id),
 FOREIGN KEY(admin_id) REFERENCES admin(admin_id)
 );
@@ -55,7 +53,7 @@ FOREIGN KEY(admin_id) REFERENCES admin(admin_id)
 CREATE TABLE test (
 test_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 instructor_id INT NOT NULL,
-FOREIGN KEY(instructor_id) REFERENCES instructor(instructor_id),
+FOREIGN KEY(instructor_id) REFERENCES instructor(instructor_id) ON DELETE CASCADE,
 name VARCHAR(50) NOT NULL,
 description VARCHAR(200) NOT NULL
 );
@@ -69,7 +67,7 @@ option_2 VARCHAR(100) NOT NULL,
 option_3 VARCHAR(100) NOT NULL,
 option_4 VARCHAR(100) NOT NULL,
 correct_answer VARCHAR(100) NOT NULL,
-FOREIGN KEY(test_id) REFERENCES test(test_id)
+FOREIGN KEY(test_id) REFERENCES test(test_id) ON DELETE CASCADE
 );
 
 
@@ -77,15 +75,15 @@ CREATE TABLE test_tasks (
 test_id INT NOT NULL,
 task_description VARCHAR(400) NOT NULL,
 code VARCHAR(3000) NOT NULL,
-FOREIGN KEY(test_id) REFERENCES test(test_id)
+FOREIGN KEY(test_id) REFERENCES test(test_id) ON DELETE CASCADE
 );
 
 
 CREATE TABLE taken_by (
 test_id INT NOT NULL,
 student_id INT NOT NULL,
-FOREIGN KEY(test_id) REFERENCES test(test_id),
-FOREIGN KEY(student_id) REFERENCES student(student_id),
+FOREIGN KEY(test_id) REFERENCES test(test_id) ON DELETE CASCADE,
+FOREIGN KEY(student_id) REFERENCES student(student_id) ON DELETE CASCADE,
 date_taken DATE NOT NULL
 );
 
@@ -95,9 +93,9 @@ test_id INT NOT NULL,
 instructor_id INT NOT NULL,
 student_id INT NOT NULL,
 score INT NULL,
-FOREIGN KEY(test_id) REFERENCES test(test_id),
-FOREIGN KEY(instructor_id) REFERENCES instructor(instructor_id),
-FOREIGN KEY(student_id) REFERENCES student(student_id)
+FOREIGN KEY(test_id) REFERENCES test(test_id) ON DELETE CASCADE,
+FOREIGN KEY(instructor_id) REFERENCES instructor(instructor_id) ON DELETE CASCADE,
+FOREIGN KEY(student_id) REFERENCES student(student_id) ON DELETE CASCADE
 );
 
 
@@ -106,7 +104,7 @@ test_id INT NOT NULL,
 question VARCHAR(400) NOT NULL,
 answer VARCHAR(100) NOT NULL,
 correct_answer VARCHAR(100) NOT NULL,
-FOREIGN KEY(test_id) REFERENCES submitted_test(test_id)
+FOREIGN KEY(test_id) REFERENCES submitted_test(test_id) ON DELETE CASCADE
 );
 
 
@@ -114,54 +112,7 @@ CREATE TABLE submitted_tasks (
 test_id INT NOT NULL,
 task_description VARCHAR(400) NOT NULL,
 code VARCHAR(3000) NOT NULL,
-FOREIGN KEY(test_id) REFERENCES submitted_test(test_id)
+FOREIGN KEY(test_id) REFERENCES submitted_test(test_id) ON DELETE CASCADE
 );
 
 
-
--- Admin registration of other admins, instructors and students!
-INSERT INTO account(username_email, password, account_type) VALUES('universe', 'godspeed123', 'A');
-INSERT INTO admin (admin_id, first_name, last_name, email, phone_number, god_id) VALUES(LAST_INSERT_ID(), 'God', 'Light', 'topG@gmail.com', '0111717888', NULL);
-
-INSERT INTO account(username_email, password, account_type) VALUES('ilovepeople<3', 'amen888', 'A');
-INSERT INTO admin (admin_id, first_name, last_name, email, phone_number, god_id) VALUES(LAST_INSERT_ID(), 'Jesus', 'Christ', 'secondG@gmail.com', '0118247162', 1);
-
-INSERT INTO account(username_email, password, account_type) VALUES('l.fishburne@gmail.com', 'heistheone321', 'I');
-INSERT INTO instructor (instructor_id, first_name, last_name, initials, birthdate, gender, phone_number, admin_id) VALUES(LAST_INSERT_ID(), 'Morpheus', 'Son of Hypnos', 'L.F', '1988-01-24', 'm', '0112845727',1);
-
-INSERT INTO account(username_email, password, account_type) VALUES('j.connor@gmail.com', 'johnconnor717', 'I');
-INSERT INTO instructor (instructor_id, first_name, last_name, initials, birthdate, gender, phone_number, admin_id) VALUES(LAST_INSERT_ID(), 'John', 'Connor', 'J.C', '1990-03-19', 'm', '0112592721', 2);
-
-INSERT INTO account(username_email, password, account_type) VALUES('k.reeves@gmail.com', 'iwillkillagentsmith1', 'S');
-INSERT INTO student (student_id, first_name, last_name, city, street, postal_code, birthdate, gender, instructor_id, admin_id) VALUES(LAST_INSERT_ID(), 'Neo', 'The Chosen One', 'Matrix', 'White Rabbit 21', 52655, '1988-01-24', 'm', 3, 1);
-INSERT INTO account(username_email, password, account_type) VALUES('t.t600@gmail.com', 'iwillkilljohnconnor7', 'S');
-INSERT INTO student (student_id, first_name, last_name, city, street, postal_code, birthdate, gender, instructor_id, admin_id) VALUES(LAST_INSERT_ID(), 'Terminator', 'T600', 'California', 'Skynet 17', 13216, '2077-02-27', 'm', 3, 1);
-INSERT INTO account(username_email, password, account_type) VALUES('l.caprio@gmail.com', 'iwilldieintitanic', 'S');
-INSERT INTO student (student_id, first_name, last_name, city, street, postal_code, birthdate, gender, instructor_id, admin_id) VALUES(LAST_INSERT_ID(), 'Leo', 'Caprio', 'New York', 'Titanic 27', 72615, '1995-06-19', 'm', 4, 2);
-INSERT INTO account(username_email, password, account_type) VALUES('j.sparrow@gmail.com', 'givemerum', 'S');
-INSERT INTO student (student_id, first_name, last_name, city, street, postal_code, birthdate, gender, instructor_id, admin_id) VALUES(LAST_INSERT_ID(), 'Jack', 'Sparrow', 'Keartons', 'Black Pearl 1', 23215, '1990-03-19', 'm', 4, 2);
-
-
-
--- Instructor 1 created test 1.
-INSERT INTO test (instructor_id, name, description) VALUES(3, 'Check brain!', 'This is a test!');
-INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, option_4, correct_answer) VALUES(LAST_INSERT_ID(), 'What is the color of Apple?','green','red','yellow','blue','green');
-INSERT INTO test_tasks (test_id, task_description, code) VALUES(LAST_INSERT_ID(), 'Write some basic function.','public static void main(String args[]){};');
-INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, option_4, correct_answer) VALUES(LAST_INSERT_ID(), 'How many fingers do you have?','7','2','5','10','10');
-
-
--- Instructor 1 created test 2.
-INSERT INTO test (instructor_id, name, description) VALUES(3, 'Check skills!', 'This is a test of another test!');
-INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, option_4, correct_answer) VALUES(LAST_INSERT_ID(), 'How many months do we have in a year?','13','9','10','12','12');
-INSERT INTO test_tasks (test_id, task_description, code) VALUES(LAST_INSERT_ID(), 'Write a private int variable with a number of 7.','public static void main(String args[]){};');
-INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, option_4, correct_answer) VALUES(LAST_INSERT_ID(), 'A portrait is a picture of what?','Camel','Person','Painting','Mirror','Person');
-INSERT INTO test_tasks (test_id, task_description, code) VALUES(LAST_INSERT_ID(), 'Write a class that extends superclass.','public class SuperClass { private String hello="Hello!"}');
-INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, option_4, correct_answer) VALUES(LAST_INSERT_ID(), 'Inside which HTML element do we put the JavaScript?','<script>','<javascript>','<js>','<scripting>','<script>');
-INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, option_4, correct_answer) VALUES(LAST_INSERT_ID(), 'How do you print out "Hello World" in java?','print("Hello World")','alert("Hello World")','System.out.println("Hello World")','msgBox("Hello World")','System.out.println("Hello World")');
-
-
--- Instructor 2 created test 1.
-INSERT INTO test (instructor_id, name, description) VALUES(4, 'Check skills 2!','This is a test from another instructor!');
-INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, option_4, correct_answer) VALUES(LAST_INSERT_ID(), 'Who is Arnold Schwarzeneg?','Pedestrian','Actor','Terminator','BodyBuilder','Actor');
-INSERT INTO test_tasks (test_id, task_description, code) VALUES(LAST_INSERT_ID(), 'Print out the result of adding a two numbers.','public static void main(String args[]){};');
-INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, option_4, correct_answer) VALUES(LAST_INSERT_ID(), 'How many terminator movies are there?','3','1','6','4','6');

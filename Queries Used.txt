@@ -1,14 +1,24 @@
--- Admin sign in check.
-SELECT a.* FROM account a WHERE a.username_email = ? AND a.password = ?;
-SELECT a.admin_id, a.first_name, a.last_name, a.god_id FROM admin a WHERE a.admin_id = ?;
 
--- Instructor sign in check.
-SELECT a.* FROM account a WHERE a.username_email = ? AND a.password = ?;
-SELECT i.instructor_id, i.first_name, i.last_name, i.initials, i.admin_id FROM instructor i WHERE i.instructor_id = ?;
+-- Check Account details.
+SELECT a.* FROM account a WHERE a.username_email = ?;
 
--- Student sign in check.
-SELECT a.* FROM account a WHERE a.username_email = ? AND a.password = ?;
-SELECT s.student_id, s.first_name, s.last_name, s.instructor_id FROM student s WHERE s.student_id = ?;
+-- Get Admin to login.
+CREATE VIEW get_admin AS (
+SELECT a.admin_id, a2.username_email, a.first_name, a.last_name, a.god_id FROM admin a JOIN account a2 ON a2.account_id = a.admin_id
+);
+SELECT * FROM get_admin a WHERE a.admin_id = ?;
+
+-- Get Instructor to login.
+CREATE VIEW get_instructor AS (
+SELECT i.instructor_id, a.username_email, i.first_name, i.last_name, i.initials, i.admin_id FROM instructor i JOIN account a ON a.account_id = i.instructor_id
+);
+SELECT * FROM get_instructor i WHERE i.instructor_id = ?;
+
+-- Get Student to login.
+CREATE VIEW get_student AS (
+SELECT s.student_id, a.username_email, s.first_name, s.last_name, s.instructor_id FROM student s JOIN account a ON a.account_id = s.student_id
+);
+SELECT * FROM get_student s WHERE s.student_id = ?;
 
 
 -- Display student test from his instructor.
@@ -54,12 +64,28 @@ INSERT INTO submitted_questions (test_id, question, answer, correct_answer) VALU
 INSERT INTO submitted_tasks (test_id, task_description, code) VALUES(?, ?, ?);
 
 
+-- Student average score.
+SELECT AVG(st.score) FROM submitted_test st WHERE st.student_id = ?;
+
+
 -- Display student submitted test for instructor.
-SELECT st.*, CONCAT(s.first_name, " ", s.last_name) AS student_name, t.description FROM submitted_test st JOIN student s ON st.student_id = s.student_id JOIN test t ON st.test_id = t.test_id WHERE st.instructor_id = ?;
+CREATE VIEW student_submitted_test AS (
+SELECT st.*, CONCAT(s.first_name, " ", s.last_name) AS student_name, t.description FROM submitted_test st JOIN student s ON st.student_id = s.student_id JOIN test t ON st.test_id = t.test_id
+);
+SELECT * FROM student_submitted_test WHERE instructor_id = ?;
 
 
 -- Display student submitted tests.
-SELECT st.*, CONCAT(s.first_name, " ", s.last_name) AS student_name, t.description FROM submitted_test st JOIN student s ON st.student_id = s.student_id JOIN test t ON st.test_id = t.test_id WHERE st.student_id  = ?;
+CREATE VIEW student_submitted_test AS (
+SELECT st.*, CONCAT(s.first_name, " ", s.last_name) AS student_name, t.description FROM submitted_test st JOIN student s ON st.student_id = s.student_id JOIN test t ON st.test_id = t.test_id
+);
+SELECT * FROM student_submitted_test WHERE student_id = ?;
+
+
+-- Instructor create test.
+INSERT INTO test (instructor_id, name, description) VALUES(?, ?, ?);
+INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, option_4, correct_answer) VALUES(?, ?, ?, ?, ?, ?, ?);
+INSERT INTO test_tasks (test_id, task_description, code) VALUES(?, ?, ?);
 
 
 -- Instructor grade submited test.
@@ -67,13 +93,95 @@ UPDATE submitted_test SET score = ? WHERE test_id = ? AND student_id = ?;
 
 
 -- Display all instructors test taken by student.
-SELECT tb.*, t.name AS test_name, CONCAT(s.first_name, " ", s.last_name) AS student_name FROM taken_by tb JOIN test t ON tb.test_id = t.test_id JOIN student s ON tb.student_id = s.student_id WHERE tb.test_id IN (SELECT t2.test_id FROM test t2 WHERE t2.instructor_id = ?);
+CREATE VIEW test_taken_by_student AS (
+SELECT tb.*, t.name AS test_name, CONCAT(s.first_name, " ", s.last_name) AS student_name FROM taken_by tb JOIN test t ON tb.test_id = t.test_id JOIN student s ON tb.student_id = s.student_id
+);
+SELECT * FROM test_taken_by_student WHERE test_id IN (SELECT t.test_id FROM test t WHERE t.instructor_id = ?);
 
 
 -- Display all instructors students.
-SELECT s.student_id, s.first_name, s.last_name, s.city, s.street, s.postal_code, s.birthdate, s.gender FROM student s WHERE s.instructor_id = ?;
+CREATE VIEW instructor_student AS (
+SELECT s.student_id, a.username_email, s.first_name, s.last_name, s.city, s.street, s.postal_code, s.birthdate, s.gender, s.instructor_id FROM student s JOIN account a ON a.account_id = s.student_id
+);
+SELECT * FROM instructor_student WHERE instructor_id = ?;
 
+
+-- Display all of admin instructors for registering student.
+SELECT i.instructor_id, i.first_name, i.last_name FROM instructor i WHERE admin_id = ?;
+
+
+-- Admin registration of admin.
+INSERT INTO account(username_email, password, account_type) VALUES(?, ?, ?);
+INSERT INTO admin (admin_id, first_name, last_name, email, phone_number, god_id) VALUES(?, ?, ?, ?, ?, ?);
 
 -- Admin registration of instructor.
 INSERT INTO account(username_email, password, account_type) VALUES(?, ?, ?);
-INSERT INTO instructor (instructor_id, first_name, last_name, initials, birthdate, gender, phone_number, admin_id) VALUES(LAST_INSERT_ID(), ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO instructor (instructor_id, first_name, last_name, initials, birthdate, gender, phone_number, admin_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?);
+
+-- Admin registration of student.
+INSERT INTO account(username_email, password, account_type) VALUES(?, ?, ?);
+INSERT INTO student (student_id, first_name, last_name, city, street, postal_code, birthdate, gender, instructor_id, admin_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+
+-- Get all admin admins.
+CREATE VIEW admin_admin AS (
+SELECT a.admin_id, a2.username_email, a2.password, a.first_name, a.last_name, a.email, a.phone_number, a.god_id FROM admin a JOIN account a2 ON a2.account_id = a.admin_id
+);
+SELECT * FROM admin_admin a WHERE a.god_id = ?;
+
+-- Get all admin instructors.
+CREATE VIEW admin_instructor AS (
+SELECT i.instructor_id, a.username_email, a.password, i.first_name, i.last_name, i.initials, i.phone_number, i.admin_id FROM instructor i JOIN account a ON a.account_id = i.instructor_id
+);
+SELECT * FROM admin_instructor a WHERE a.admin_id = ?;
+
+-- Get all admin students.
+CREATE VIEW admin_student AS (
+SELECT s.student_id, a.username_email, a.password, s.first_name, s.last_name, s.city, s.street, s.postal_code, s.instructor_id, s.admin_id FROM student s JOIN account a ON a.account_id = s.student_id
+);
+SELECT * FROM admin_student a WHERE a.admin_id = ?;
+
+-- Get all admins.
+SELECT * FROM admin a WHERE a.admin_id != 1;
+
+
+-- Update account.
+UPDATE account  SET username_email = ?, password = ? WHERE account_id = ?;
+
+-- Update admin account details.
+UPDATE admin SET first_name = ?, last_name = ?, email = ?, phone_number = ? WHERE admin_id = ?;
+
+-- Update instructor account details.
+UPDATE instructor SET first_name = ?, last_name = ?, initials = ?, phone_number = ? WHERE instructor_id = ?;
+
+-- Check for instructor id.
+SELECT i.instructor_id FROM instructor i WHERE i.instructor_id = ?;
+
+-- Update student account details.
+UPDATE student SET first_name = ?, last_name = ?, city = ?, street = ?, postal_code = ?, instructor_id = ? WHERE student_id = ?;
+
+-- Check for admin id.
+SELECT a.admin_id FROM admin a WHERE a.admin_id = ?;
+
+-- Update admin to new admin.
+UPDATE admin SET god_id = ? WHERE admin_id = ?;
+
+
+-- Soft delete and inherit admin accounts.
+UPDATE student s SET s.admin_id = ? WHERE s.admin_id = ?;
+UPDATE instructor i SET i.admin_id = ? WHERE i.admin_id = ?;
+DELETE FROM account WHERE account_id = ?;
+
+-- Force delete admin account and all of its accounts and content.
+DELETE a FROM account a JOIN student s ON a.account_id = s.student_id WHERE s.admin_id = ?;
+DELETE a FROM account a JOIN instructor i ON a.account_id = i.instructor_id WHERE i.admin_id = ?;
+DELETE FROM account WHERE account_id = ?;
+
+-- Delete instructor account and all of its students and content.
+DELETE a FROM account a JOIN student s ON a.account_id = s.student_id WHERE s.instructor_id = ?;
+DELETE FROM account WHERE account_id = ?;
+
+-- Delete student account and all of its content.
+DELETE FROM account WHERE account_id = ?;
+
+
