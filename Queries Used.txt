@@ -1,4 +1,3 @@
-
 -- Check Account details.
 SELECT a.* FROM account a WHERE a.username_email = ?;
 
@@ -16,7 +15,7 @@ SELECT * FROM get_instructor i WHERE i.instructor_id = ?;
 
 -- Get Student to login.
 CREATE VIEW get_student AS (
-SELECT s.student_id, a.username_email, s.first_name, s.last_name, s.instructor_id FROM student s JOIN account a ON a.account_id = s.student_id
+SELECT s.student_id, a.username_email, s.first_name, s.last_name, s.instructor_id, s.admin_id FROM student s JOIN account a ON a.account_id = s.student_id
 );
 SELECT * FROM get_student s WHERE s.student_id = ?;
 
@@ -86,6 +85,10 @@ SELECT * FROM student_submitted_test WHERE student_id = ?;
 INSERT INTO test (instructor_id, name, description) VALUES(?, ?, ?);
 INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, option_4, correct_answer) VALUES(?, ?, ?, ?, ?, ?, ?);
 INSERT INTO test_tasks (test_id, task_description, code) VALUES(?, ?, ?);
+
+
+-- Instructor delete test.
+DELETE t FROM test t WHERE t.test_id = ?;
 
 
 -- Instructor grade submited test.
@@ -183,5 +186,34 @@ DELETE FROM account WHERE account_id = ?;
 
 -- Delete student account and all of its content.
 DELETE FROM account WHERE account_id = ?;
+
+
+
+SET FOREIGN_KEY_CHECKS=1;
+
+TRUNCATE test;
+TRUNCATE test_questions;
+TRUNCATE test_tasks;
+
+TRUNCATE taken_by;
+
+TRUNCATE submitted_test;
+TRUNCATE submitted_questions;
+TRUNCATE submitted_tasks;
+
+TRUNCATE account;
+TRUNCATE admin;
+TRUNCATE instructor;
+TRUNCATE student;
+
+ALTER TABLE account AUTO_INCREMENT = 1;
+ALTER TABLE test AUTO_INCREMENT = 1;
+
+
+
+SELECT * FROM account a;
+SELECT * FROM admin a;
+SELECT * FROM instructor i;
+SELECT * FROM student s;
 
 

@@ -117,3 +117,4 @@ INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, opt
 INSERT INTO test_tasks (test_id, task_description, code) VALUES(LAST_INSERT_ID(), 'Overwrite run method with lambda.','public static void main(String args[]){};');
 INSERT INTO test_questions (test_id, question, option_1, option_2, option_3, option_4, correct_answer) VALUES(LAST_INSERT_ID(), 'Total constructor string class have?','3','7','13','20','13');
 
+
