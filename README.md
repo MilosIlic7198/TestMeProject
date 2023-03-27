@@ -7,7 +7,7 @@ Technologies used: Java, MYSQL.
 
 The project contains: Java Core and Data Structures, Java Swing GUI, JDBC, DPCP, Java Socket programing, Concurrent programing, MYSQL(database programing).
 
-Design patterns used: Singleton, Data Access Object Pattern, Facade Pattern, Observer Pattern, Chain Of Responsibility, Builder Pattern.
+Design patterns used: Data Access Object Pattern, Facade Pattern, Observer Pattern, Chain Of Responsibility, Builder Pattern.
 
 When starting the application itself, the user is offered to signin.
 
